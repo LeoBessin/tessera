@@ -1,6 +1,7 @@
 # 6. Restraint as the art direction, and colour as the progress bar
 
-- Status: accepted, amended by [ADR 8](0008-generated-art-must-be-detailed.md)
+- Status: accepted, amended by [ADR 8](0008-generated-art-must-be-detailed.md),
+  values fixed by [ADR 9](0009-the-art-direction-as-chosen.md)
 - Date: 2026-11-10
 
 ## Context

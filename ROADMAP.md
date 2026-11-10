@@ -12,7 +12,9 @@ architecture is the way it is. The premise, the art direction, the trades and
 the detail mandate are ADRs [5](docs/adr/0005-the-mosaic-premise.md),
 [6](docs/adr/0006-colour-is-the-progress-bar.md),
 [7](docs/adr/0007-three-trades-and-per-role-unlocks.md) and
-[8](docs/adr/0008-generated-art-must-be-detailed.md).
+[8](docs/adr/0008-generated-art-must-be-detailed.md); the concrete palette,
+laying pattern and silhouettes chosen from the setting board are in
+[ADR 9](docs/adr/0009-the-art-direction-as-chosen.md).
 
 ---
 
@@ -162,9 +164,13 @@ failed its brief.
 - One complete panel: arrival, checkpoint, the scavengers already at work, the
   restoration, the reveal of what the panel depicts
 - **The first detailed generators**, replacing placeholder primitives for
-  everything this panel contains: the tesserae themselves, the restorers, the
-  scavengers. Judged across seeds rather than at a seed — a generator that
-  looks good once has not been shown to work.
+  everything this panel contains: tesserae laid *opus vermiculatum*, restorers
+  on the Crucible build, scavengers on the Hauler build (ADR 9). Judged across
+  seeds rather than at a seed — a generator that looks good once has not been
+  shown to work.
+- Resolve whether the three trades share the Crucible silhouette or need their
+  own. ADR 9 leaves this open deliberately; inheriting one silhouette by
+  default is the outcome to avoid.
 - A loading state, which the game does not currently have and which generation
   time now requires
 
@@ -194,6 +200,9 @@ The phase that decides whether fifteen hours is achievable or merely intended.
   geometry. Content says what a panel depicts and how densely it is laid; the
   renderer's generators turn that into tesserae. This is the division that lets
   content stay authored data while the art stays code.
+- *Opus vermiculatum* means content supplies **contours**, not just extents —
+  rows follow a line, and the validator has to check that line exists and is
+  laid along something worth depicting. This is the cost ADR 9 took knowingly.
 - A graph validator run in CI: every panel reachable, no soft-locks, every
   required ability obtainable before it is required — **checked once per
   trade**, not once overall, which is the cost ADR 7 knowingly accepted
@@ -265,7 +274,8 @@ Decisions deliberately deferred rather than forgotten.
 | --- | --- |
 | Players render as an octahedron, which ADR 5 does not explain for craftspeople with a trade | Either the form changes when facing exists, or the fiction grows a reason |
 | Three trades is a bet that three combines richly enough for fifteen hours | Revisit after phase 3 playtesting, before phase 5 commits content to it |
-| How a panel's subject is actually drawn — the mosaic imagery itself — is answered in principle by ADR 8 (instanced tesserae, generated in detail) but unproven | First real test is phase 3's single panel; if detail cannot carry depiction there, phase 4's schema is built on sand |
+| How a panel's subject is actually drawn — the mosaic imagery itself — is answered in principle by ADR 8 and given a technique by ADR 9 (*opus vermiculatum*, rows following a contour) but unproven | First real test is phase 3's single panel; if detail cannot carry depiction there, phase 4's schema is built on sand |
+| One restorer silhouette was chosen but there are three trades | ADR 9 leaves it open: either Crucible is the shared base and trades differ by tool, or cutter and keeper need silhouettes of their own. Decide in phase 3, explicitly |
 | Whether detailed runtime generation is affordable in a browser tab | Measured in phase 3, budgeted in phase 5; build-time baking is the recorded fallback |
 
 ---
