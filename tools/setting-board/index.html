@@ -1,0 +1,1377 @@
+<title>Tessera Setting Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap">
+
+<style>
+  /* A setting board is the surface a mosaicist lays trial work on before
+     committing it to the wall. This page commits to one visual world on
+     purpose: a cold, dark game palette cannot be judged on a white ground,
+     so there is no light theme — every colour below is painted explicitly. */
+  :root {
+    --ink: #0a0c11;
+    --surface: #11151d;
+    --surface-2: #161b25;
+    --line: #212838;
+    --line-soft: #1a202c;
+    --text: #dde2ec;
+    --muted: #79849b;
+    --muted-dim: #525c70;
+    --accent: #6fd3c7;
+    --accent-dim: #2c5a55;
+
+    --step--1: 0.75rem;
+    --step-0: 0.9375rem;
+    --step-1: 1.125rem;
+    --step-2: 1.5rem;
+    --step-3: 2.25rem;
+    --step-4: clamp(2.5rem, 6vw, 3.75rem);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font-family: Archivo, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: var(--step-0);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 0 72px;
+  }
+
+  /* ---- type ---- */
+  h1, h2, h3 { font-family: Newsreader, Georgia, "Times New Roman", serif; font-weight: 300; text-wrap: balance; margin: 0; }
+  h1 { font-size: var(--step-4); line-height: 1.02; letter-spacing: -0.015em; }
+  h2 { font-size: var(--step-2); line-height: 1.15; }
+  h3 { font-size: var(--step-1); line-height: 1.2; }
+
+  .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-dim);
+  }
+
+  p { margin: 0; }
+  .lede { font-family: Newsreader, Georgia, serif; font-size: var(--step-1); line-height: 1.55; color: #aab3c6; max-width: 62ch; font-weight: 300; }
+  .note { font-size: var(--step--1); color: var(--muted); line-height: 1.5; }
+
+  /* ---- header ---- */
+  header.masthead {
+    padding-block: 56px 36px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .masthead-top { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; justify-content: space-between; }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  button, .seedbox {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: var(--step--1);
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 9px 14px;
+    line-height: 1;
+  }
+  button { cursor: pointer; transition: border-color 120ms ease, color 120ms ease; }
+  button:hover { border-color: var(--accent-dim); color: var(--accent); }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button[disabled] { opacity: 0.45; cursor: default; }
+
+  .seedbox { display: inline-flex; align-items: center; gap: 10px; padding: 0 0 0 14px; }
+  .seedbox label { color: var(--muted-dim); letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.6875rem; }
+  .seedbox input {
+    font: inherit;
+    width: 10ch;
+    background: transparent;
+    border: 0;
+    color: var(--accent);
+    padding: 9px 14px 9px 0;
+  }
+  .seedbox input::-webkit-outer-spin-button, .seedbox input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* ---- sections ---- */
+  section { padding-block: 48px; border-bottom: 1px solid var(--line-soft); }
+  .sec-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; max-width: 68ch; }
+  .sec-head .row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+
+  /* ---- grids ---- */
+  .grid-mood { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+  .grid-asset { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (min-width: 880px) { .grid-asset { grid-template-columns: repeat(4, 1fr); } }
+
+  /* ---- tile ---- */
+  .tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    transition: border-color 140ms ease, transform 140ms ease;
+  }
+  .tile:hover { border-color: var(--accent-dim); }
+  .tile[aria-pressed="true"] { border-color: var(--accent); }
+  .tile[aria-pressed="true"]::after {
+    content: "";
+    position: absolute; inset: 0;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .tile canvas { display: block; width: 100%; height: auto; background: #000; }
+
+  .tile-body { padding: 14px 15px 15px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--line-soft); }
+  .tile-title { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .tile-name { font-family: Newsreader, Georgia, serif; font-size: var(--step-1); font-weight: 400; }
+  .tile-mark { font-family: "JetBrains Mono", monospace; font-size: 0.6875rem; letter-spacing: 0.1em; color: var(--muted-dim); text-transform: uppercase; }
+  .tile[aria-pressed="true"] .tile-mark { color: var(--accent); }
+  .tile-note { font-size: var(--step--1); color: var(--muted); line-height: 1.5; }
+  .tile-latin { font-family: Newsreader, Georgia, serif; font-style: italic; font-size: var(--step--1); color: var(--muted-dim); }
+
+  .swatches { display: flex; gap: 0; margin-top: 2px; }
+  .swatches i { display: block; width: 100%; height: 14px; }
+  .hexrow { display: flex; gap: 10px; flex-wrap: wrap; font-family: "JetBrains Mono", monospace; font-size: 0.6875rem; color: var(--muted-dim); }
+
+  /* ---- decision ---- */
+  .decision { padding-block: 44px 0; display: flex; flex-direction: column; gap: 22px; }
+  .decision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); border-radius: 3px; overflow: hidden; }
+  .dcell { background: var(--surface); padding: 16px 18px; display: flex; flex-direction: column; gap: 5px; }
+  .dcell .k { font-family: "JetBrains Mono", monospace; font-size: 0.6875rem; letter-spacing: 0.11em; text-transform: uppercase; color: var(--muted-dim); }
+  .dcell .v { font-family: Newsreader, Georgia, serif; font-size: var(--step-1); }
+  .dcell .sub { font-family: "JetBrains Mono", monospace; font-size: 0.6875rem; color: var(--muted); }
+
+  .status { font-family: "JetBrains Mono", monospace; font-size: var(--step--1); color: var(--muted-dim); min-height: 1.4em; }
+  .status[data-tone="ok"] { color: var(--accent); }
+
+  footer { padding-block: 40px 0; border-top: 1px solid var(--line-soft); margin-top: 44px; }
+
+  .loading {
+    position: fixed; inset: 0;
+    background: var(--ink);
+    display: grid; place-items: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: var(--step--1);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-dim);
+    z-index: 50;
+  }
+  /* A class selector outranks the host skeleton's [hidden] rule, so say it here too. */
+  .loading[hidden] { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+
+<div class="loading" id="loading">Laying the board…</div>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="masthead-top">
+      <span class="eyebrow">Tessera · art direction</span>
+      <span class="eyebrow" id="stamp">18 generated views</span>
+    </div>
+    <h1>Setting Board</h1>
+    <p class="lede">
+      Trial work, laid before anything is committed to the wall. Every form below is
+      generated by code from one seed — no models, no textures — so what you are choosing
+      between is generators, not pictures. Change the seed to see whether a direction holds
+      across more than the one roll that happened to look good.
+    </p>
+    <div class="controls">
+      <span class="seedbox">
+        <label for="seed">Seed</label>
+        <input id="seed" type="number" value="20261110" step="1" inputmode="numeric">
+      </span>
+      <button id="reroll" type="button">Roll a new seed</button>
+      <button id="rerender" type="button">Re-lay this seed</button>
+    </div>
+  </header>
+
+  <section id="sec-mood">
+    <div class="sec-head">
+      <div class="row">
+        <span class="eyebrow">01 — the decision</span>
+      </div>
+      <h2>Choose the mood</h2>
+      <p class="note">
+        One panel, mid-restoration, under six treatments. The cold half is mosaic still
+        broken; colour returns from the right as it is re-laid, which is the progress bar
+        from ADR 6. Judge the whole frame, not the swatches — fog, key light and ground all
+        move together here.
+      </p>
+    </div>
+    <div class="grid-mood" id="grid-mood"></div>
+  </section>
+
+  <section id="sec-laying">
+    <div class="sec-head">
+      <div class="row"><span class="eyebrow">02 — assets</span></div>
+      <h2>How the tesserae are laid</h2>
+      <p class="note">
+        The four Roman laying patterns, in the mood you selected above. This is the most
+        load-bearing asset in the game: it is the ground, the progress bar and the premise
+        at once, and it is what ADR 8's detail mandate mostly means in practice.
+      </p>
+    </div>
+    <div class="grid-asset" id="grid-laying"></div>
+  </section>
+
+  <section id="sec-restorer">
+    <div class="sec-head">
+      <div class="row"><span class="eyebrow">03 — assets</span></div>
+      <h2>The restorer</h2>
+      <p class="note">
+        Articulated figures on a joint frame, with a labourer's proportions rather than a
+        hero's — head about a seventh of the height, weight on the back foot, the working
+        arm reaching down to the floor. All four wear an apron and a belt, carry a satchel
+        with tesserae showing in it, and hold the tool their build is named for. These
+        replace the placeholder octahedron.
+      </p>
+    </div>
+    <div class="grid-asset" id="grid-restorer"></div>
+  </section>
+
+  <section id="sec-scavenger">
+    <div class="sec-head">
+      <div class="row"><span class="eyebrow">04 — assets</span></div>
+      <h2>The scavenger</h2>
+      <p class="note">
+        Built as anatomy rather than debris: a plated carapace on jointed legs that lift
+        out of the body and plant on the floor, a head with mandibles, and on some builds a
+        grasping arm. Nothing on the body is lit — the only saturated thing a scavenger
+        carries is what it has taken, so your eye goes to the theft.
+      </p>
+    </div>
+    <div class="grid-asset" id="grid-scavenger"></div>
+  </section>
+
+  <div class="decision">
+    <div class="sec-head" style="margin-bottom:0">
+      <div class="row"><span class="eyebrow">05</span></div>
+      <h2>The board as it stands</h2>
+    </div>
+    <div class="decision-grid" id="decision"></div>
+    <p class="status" id="status"></p>
+  </div>
+
+  <footer>
+    <p class="note">
+      Generated with Three.js under the same true-isometric orthographic camera the game
+      uses — direction (1, √2⁄2, 1), the angle that projects a cube to a regular hexagon.
+      Tesserae are instanced chamfered extrusions, figures are articulated joint frames
+      of tapered bones and rounded slabs; every placement,
+      rotation, height and colour jitter comes from one seeded generator, exactly as
+      <span class="mono">packages/sim</span>'s PRNG feeds the renderer in the real client.
+    </p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------ *
+   * Seeded generation. Mirrors packages/sim's PRNG surface so the code
+   * on this board reads the way the game's generators will.
+   * ------------------------------------------------------------------ */
+  function createPrng(seed) {
+    let a = (seed >>> 0) || 1;
+    return {
+      nextFloat() {
+        a |= 0; a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      },
+      nextInt(n) { return Math.floor(this.nextFloat() * n); },
+      range(lo, hi) { return lo + this.nextFloat() * (hi - lo); },
+      sign() { return this.nextFloat() < 0.5 ? -1 : 1; }
+    };
+  }
+
+  const smoothstep = (e0, e1, x) => {
+    const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
+    return t * t * (3 - 2 * t);
+  };
+
+  /* ------------------------------------------------------------------ *
+   * Moods. Each is a complete treatment: ground, both tesserae ramps,
+   * key light, hemisphere fill and fog depth. They are meant to be
+   * genuinely different answers, not one answer at six temperatures.
+   * ------------------------------------------------------------------ */
+  const MOODS = [
+    {
+      id: "ash-dawn", name: "Ash Dawn",
+      note: "The palette as it stands today, resolved. Near-black blue, one low warm key, long shadows across a cold floor.",
+      bg: 0x11131a, ground: 0x1b1f2b,
+      cold: [0x2b3243, 0x454e67], warm: [0x74988b, 0xcfbb8c],
+      key: { color: 0xfff0d8, intensity: 2.3, pos: [26, 34, 16] },
+      hemi: { sky: 0xfff0d8, ground: 0x4a5a8a, intensity: 0.5 },
+      fog: [-4, 44], accent: 0x6fd3c7
+    },
+    {
+      id: "deep-water", name: "Deep Water",
+      note: "Submerged and close. Heavy fog does the editing, so only what is near enough to work on is legible at all.",
+      bg: 0x061015, ground: 0x0d1a22,
+      cold: [0x153039, 0x28505f], warm: [0x2f9c96, 0x93dcc6],
+      key: { color: 0xcfeaf0, intensity: 1.8, pos: [20, 30, 18] },
+      hemi: { sky: 0x9fd8e8, ground: 0x123544, intensity: 0.68 },
+      fog: [-12, 20], accent: 0x7ce0d2
+    },
+    {
+      id: "kiln-light", name: "Kiln Light",
+      note: "The workshop rather than the ruin. Warm ground, amber key — restoration as craft being done, not loss being mourned.",
+      bg: 0x17110c, ground: 0x251b14,
+      cold: [0x3a2e25, 0x59463a], warm: [0xc98a3c, 0xf2dcab],
+      key: { color: 0xffd9a0, intensity: 2.5, pos: [24, 30, 14] },
+      hemi: { sky: 0xffd0a0, ground: 0x4a3426, intensity: 0.5 },
+      fog: [-2, 40], accent: 0xffc27a
+    },
+    {
+      id: "frost-quarry", name: "Frost Quarry",
+      note: "High key and stark. Almost no fog, so the whole panel is readable at once and the work ahead is visible all of it.",
+      bg: 0x1b2027, ground: 0x39414c,
+      cold: [0x525c68, 0x7b8693], warm: [0x86b8c6, 0xe3edef],
+      key: { color: 0xffffff, intensity: 2.7, pos: [28, 36, 20] },
+      hemi: { sky: 0xdceaf2, ground: 0x5b6672, intensity: 0.8 },
+      fog: [8, 95], accent: 0x3fb8c4
+    },
+    {
+      id: "vellum", name: "Vellum",
+      note: "Inverted: bone ground, dark tesserae, restoration arriving as depth rather than light. The one direction that is not a dark game.",
+      bg: 0xe9e4d9, ground: 0xd9d3c5,
+      cold: [0xaaa497, 0x8b8578], warm: [0x2f7a6e, 0x1d4f63],
+      key: { color: 0xfffaf0, intensity: 1.7, pos: [24, 34, 18] },
+      hemi: { sky: 0xffffff, ground: 0xc9c3b4, intensity: 0.95 },
+      fog: [12, 105], accent: 0x1d6f66
+    },
+    {
+      id: "ember-dusk", name: "Ember Dusk",
+      note: "Plum darkness with an ember key. The most dramatic and the least quiet — worth seeing before the melancholy is settled on.",
+      bg: 0x130d15, ground: 0x201625,
+      cold: [0x33243a, 0x4d3754], warm: [0xb4524f, 0xeca76e],
+      key: { color: 0xffb27a, intensity: 2.3, pos: [22, 28, 16] },
+      hemi: { sky: 0xff9f80, ground: 0x3a2448, intensity: 0.52 },
+      fog: [-8, 34], accent: 0xff8f6a
+    }
+  ];
+
+  /* The four Roman laying patterns. These are the real terms of art, and
+     they differ in what they are good at, not only in how they look. */
+  const LAYINGS = [
+    { id: "regulatum", name: "Regulatum", latin: "opus regulatum",
+      note: "A strict square grid. Most legible, most obviously man-made, and the cheapest to generate and validate." },
+    { id: "tessellatum", name: "Tessellatum", latin: "opus tessellatum",
+      note: "Offset rows, like brickwork. Breaks the grid's seams without losing the order that makes a floor readable." },
+    { id: "vermiculatum", name: "Vermiculatum", latin: "opus vermiculatum",
+      note: "Rows that follow a contour. Expensive and expressive — the pattern can carry an image, which is what a panel needs." },
+    { id: "palladianum", name: "Palladianum", latin: "opus palladianum",
+      note: "Irregular fragments, crazy-paving. Reads as salvage rather than craft; strongest where the mosaic is still broken." }
+  ];
+
+  /* Restorers are people with a trade, so each is a figure: a joint frame
+     with a working stance, work clothes, an apron, a satchel of tesserae and
+     the tool their build is named for. The four differ in proportion and in
+     what they carry, which is what has to read at this camera distance. */
+  const RESTORERS = [
+    { id: "plumb", name: "Plumb", note: "Upright and narrow, weight on the back foot, a plumb line hanging from one hand. The most still of the four.",
+      h: 1.02, w: 0.92, tool: "plumb", head: "hood", stance: 0.17 },
+    { id: "mallet", name: "Mallet", note: "Broad through the shoulders, stance wide, mallet low and ready. Reads most clearly when small, which matters at party size.",
+      h: 0.94, w: 1.22, tool: "mallet", head: "cap", stance: 0.27 },
+    { id: "spindle", name: "Spindle", note: "Long-limbed and lean, a straightedge carried across the body. Takes the least ground of the four.",
+      h: 1.12, w: 0.80, tool: "rule", head: "bare", stance: 0.13 },
+    { id: "crucible", name: "Crucible", note: "Heavy-set, carrying a hod of tesserae on one arm. The silhouette says setter rather than cutter, which may be the point.",
+      h: 0.97, w: 1.08, tool: "hod", head: "hood", stance: 0.21 }
+  ];
+
+  /* Scavengers are built as creatures: a plated carapace carried on jointed
+     legs, a head with mandibles, and the tesserae they have taken strapped
+     to the back. Nothing on the body is lit — only what they stole. */
+  const SCAVENGERS = [
+    { id: "picker", name: "Picker", note: "Tall on four long legs, carapace held high, one grasping arm. Takes a single tessera at a time and reaches a long way for it.",
+      legs: 4, legLen: 0.66, bodyR: 0.20, bodyY: 0.60, loot: 1, arm: true },
+    { id: "hauler", name: "Hauler", note: "A heavy plated body on six short legs, back loaded with what it has taken. Slow, obvious, and the clearest thing in a fight to stop.",
+      legs: 6, legLen: 0.26, bodyR: 0.33, bodyY: 0.32, loot: 5, arm: false },
+    { id: "skitter", name: "Skitter", note: "Low and wide on eight short legs. Reads as fast even standing still, which is most of what a silhouette has to do.",
+      legs: 8, legLen: 0.24, bodyR: 0.21, bodyY: 0.24, loot: 1, arm: false },
+    { id: "drift", name: "Drift", note: "Spindly and barely there — a small body on long thin legs. The hardest of the four to tell apart from loose debris.",
+      legs: 6, legLen: 0.56, bodyR: 0.155, bodyY: 0.54, loot: 2, arm: true }
+  ];
+
+  /* ------------------------------------------------------------------ *
+   * Geometry
+   * ------------------------------------------------------------------ */
+  const ISO_DIR = new THREE.Vector3(1, Math.SQRT2 / 2, 1).normalize();
+
+  /** A tessera: a rounded square extruded with a real chamfer, so the key
+      light catches an edge rather than a flat plane. One geometry,
+      instanced thousands of times. */
+  function tesseraGeometry(size, depth) {
+    const s = size / 2, r = size * 0.16;
+    const shape = new THREE.Shape();
+    shape.moveTo(-s + r, -s);
+    shape.lineTo(s - r, -s);
+    shape.quadraticCurveTo(s, -s, s, -s + r);
+    shape.lineTo(s, s - r);
+    shape.quadraticCurveTo(s, s, s - r, s);
+    shape.lineTo(-s + r, s);
+    shape.quadraticCurveTo(-s, s, -s, s - r);
+    shape.lineTo(-s, -s + r);
+    shape.quadraticCurveTo(-s, -s, -s + r, -s);
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: depth,
+      bevelEnabled: true,
+      bevelSize: size * 0.07,
+      bevelThickness: depth * 0.4,
+      bevelSegments: 2,
+      curveSegments: 2
+    });
+    geo.rotateX(-Math.PI / 2);
+    return geo;
+  }
+
+  const TMP_OBJ = new THREE.Object3D();
+  const TMP_COL = new THREE.Color();
+  const RAMP_A = new THREE.Color();
+  const RAMP_B = new THREE.Color();
+
+  function rampColor(target, ramp, t) {
+    RAMP_A.setHex(ramp[0]);
+    RAMP_B.setHex(ramp[1]);
+    return target.copy(RAMP_A).lerp(RAMP_B, t);
+  }
+
+  /**
+   * Lays a panel of tesserae.
+   *
+   * `front` is the restoration line in world x: everything left of it is
+   * still broken (cold ramp, gaps, tilted pieces), everything right of it
+   * has been re-laid (warm ramp, closed, level).
+   */
+  function layPanel(mood, laying, prng, opts) {
+    const extent = opts.extent;
+    const pitch = opts.pitch;
+    const gap = pitch * 0.14;
+    const size = pitch - gap;
+    const depth = pitch * 0.42;
+    const front = opts.front;
+
+    const cells = [];
+    const n = Math.ceil((extent * 2) / pitch);
+
+    for (let j = 0; j <= n; j++) {
+      for (let i = 0; i <= n; i++) {
+        let x = -extent + i * pitch;
+        let z = -extent + j * pitch;
+        let rot = 0;
+        let scale = 1;
+
+        if (laying === "tessellatum") {
+          x += (j % 2) * pitch * 0.5;
+        } else if (laying === "vermiculatum") {
+          // Rows bend around a contour, and each piece turns to follow the
+          // tangent — which is what lets this pattern carry an image.
+          const flow = Math.sin(z * 0.24) * 2.4 + Math.cos(z * 0.11) * 1.2;
+          x += flow;
+          rot = Math.cos(z * 0.24) * 0.52;
+        } else if (laying === "palladianum") {
+          x += prng.range(-pitch * 0.42, pitch * 0.42);
+          z += prng.range(-pitch * 0.42, pitch * 0.42);
+          rot = prng.range(-Math.PI, Math.PI);
+          scale = prng.range(0.62, 1.38);
+        }
+
+        if (Math.abs(x) > extent + pitch || Math.abs(z) > extent + pitch) continue;
+
+        // Restored to the right of the front, broken to the left.
+        const restored = smoothstep(front - 2.2, front + 2.2, x);
+
+        // Broken ground loses pieces; re-laid ground does not.
+        const lossChance = (laying === "palladianum" ? 0.30 : 0.22) * (1 - restored) + 0.012;
+        if (prng.nextFloat() < lossChance) continue;
+
+        // Hand-laying is never perfectly square, and broken work less so.
+        const jitterScale = (1 - restored) * 1.0 + 0.22;
+        const jx = prng.range(-1, 1) * gap * 0.55 * jitterScale;
+        const jz = prng.range(-1, 1) * gap * 0.55 * jitterScale;
+        const jrot = prng.range(-1, 1) * 0.10 * jitterScale;
+        const lift = prng.nextFloat() < 0.07 * (1 - restored)
+          ? prng.range(0.2, 0.9) * depth
+          : 0;
+        const tilt = lift > 0 ? prng.range(-0.3, 0.3) : prng.range(-1, 1) * 0.035 * jitterScale;
+
+        // Blended across the front itself, so the transition is a gradient of
+        // pieces being re-laid rather than a hard line.
+        const tone = prng.nextFloat();
+        const colour = rampColor(TMP_COL, mood.cold, tone).clone();
+        if (restored > 0.001) {
+          colour.lerp(rampColor(new THREE.Color(), mood.warm, tone), restored);
+        }
+
+        cells.push({
+          x: x + jx, z: z + jz, y: lift,
+          rot: rot + jrot, tilt: tilt,
+          scale: scale * prng.range(0.94, 1.06),
+          colour: colour
+        });
+      }
+    }
+
+    const geo = tesseraGeometry(size, depth);
+    const mat = new THREE.MeshStandardMaterial({ roughness: 0.82, metalness: 0.02 });
+    const mesh = new THREE.InstancedMesh(geo, mat, cells.length);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    for (let k = 0; k < cells.length; k++) {
+      const c = cells[k];
+      TMP_OBJ.position.set(c.x, c.y, c.z);
+      TMP_OBJ.rotation.set(c.tilt, c.rot, c.tilt * 0.6);
+      TMP_OBJ.scale.set(c.scale, c.scale * (0.7 + c.scale * 0.3), c.scale);
+      TMP_OBJ.updateMatrix();
+      mesh.setMatrixAt(k, TMP_OBJ.matrix);
+      mesh.setColorAt(k, c.colour);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    return mesh;
+  }
+
+  const V3 = function (x, y, z) { return new THREE.Vector3(x, y, z); };
+  const UP = new THREE.Vector3(0, 1, 0);
+
+  /** A tapered segment between two points — the limb primitive everything
+      articulated below is built from. */
+  function bone(a, b, r0, r1, mat, segs) {
+    const dir = new THREE.Vector3().subVectors(b, a);
+    const len = dir.length();
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, len, segs || 7, 1), mat);
+    m.position.copy(a).add(b).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(UP, dir.normalize());
+    m.castShadow = true;
+    return m;
+  }
+
+  function ball(p, r, mat, detail) {
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail === undefined ? 1 : detail), mat);
+    m.position.copy(p);
+    m.castShadow = true;
+    return m;
+  }
+
+  /** A rounded slab extruded along +Y from its own base: plates, boots,
+      aprons, carapace sections. */
+  function slab(w, d, h, r, mat) {
+    const hw = w / 2, hd = d / 2;
+    const rr = Math.max(0.0005, Math.min(r, hw * 0.85, hd * 0.85));
+    const sh = new THREE.Shape();
+    sh.moveTo(-hw + rr, -hd);
+    sh.lineTo(hw - rr, -hd); sh.quadraticCurveTo(hw, -hd, hw, -hd + rr);
+    sh.lineTo(hw, hd - rr); sh.quadraticCurveTo(hw, hd, hw - rr, hd);
+    sh.lineTo(-hw + rr, hd); sh.quadraticCurveTo(-hw, hd, -hw, hd - rr);
+    sh.lineTo(-hw, -hd + rr); sh.quadraticCurveTo(-hw, -hd, -hw + rr, -hd);
+    const geo = new THREE.ExtrudeGeometry(sh, {
+      depth: h, bevelEnabled: true, bevelSize: rr * 0.35,
+      bevelThickness: h * 0.2, bevelSegments: 1, curveSegments: 2
+    });
+    geo.rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(geo, mat);
+    m.castShadow = true;
+    return m;
+  }
+
+  /**
+   * A restorer: an articulated figure in working clothes.
+   *
+   * Built on a joint frame with a labourer's proportions rather than a
+   * hero's — head about a seventh of the height, hips just over half, weight
+   * on the back foot and the working arm reaching down to the floor. Every
+   * variant carries an apron, a belt, a satchel with tesserae showing in it,
+   * and the tool its build is named for.
+   */
+  function buildRestorer(spec, mood, prng) {
+    const g = new THREE.Group();
+    const accent = new THREE.Color(mood.accent);
+    const warm = new THREE.Color(mood.warm[1]);
+
+    const cloth = new THREE.MeshStandardMaterial({ color: accent.clone().multiplyScalar(0.36), roughness: 0.9, flatShading: true });
+    const under = new THREE.MeshStandardMaterial({ color: accent.clone().multiplyScalar(0.2), roughness: 0.93, flatShading: true });
+    const leather = new THREE.MeshStandardMaterial({ color: 0x3c3228, roughness: 0.8, metalness: 0.06, flatShading: true });
+    const metal = new THREE.MeshStandardMaterial({ color: 0x8e959f, roughness: 0.32, metalness: 0.8, flatShading: true });
+    const glow = new THREE.MeshStandardMaterial({ color: accent, emissive: accent, emissiveIntensity: 1.2, roughness: 0.3 });
+
+    const H = 1.46 * spec.h;
+    const w = spec.w;
+    const j = function (a) { return prng.range(-a, a); };
+    const u = function (f) { return f * H; };       // fraction of height
+    const uw = function (f) { return f * H * w; };  // ...scaled by build
+
+    const yAnkle = u(0.055), yKnee = u(0.30), yHip = u(0.515);
+    const yWaist = u(0.575), yChest = u(0.755), yShldr = u(0.815);
+    const yNeck = u(0.855), yHead = u(0.925);
+    const half = uw(0.082);
+
+    /* legs — one forward, weight settled on the back one */
+    [[-1, spec.stance], [1, -spec.stance * 0.68]].forEach(function (L) {
+      const side = L[0], fwd = L[1] * u(0.5);
+      const ankle = V3(side * half, yAnkle, fwd + j(u(0.012)));
+      const knee = V3(side * half * 1.08, yKnee, fwd * 0.42 + u(0.025));
+      const hip = V3(side * half * 0.9, yHip, fwd * 0.1);
+      g.add(bone(ankle, knee, uw(0.050), uw(0.063), under));
+      g.add(bone(knee, hip, uw(0.068), uw(0.077), cloth));
+      g.add(ball(knee, uw(0.053), leather, 0));
+      const boot = slab(uw(0.118), u(0.2), u(0.072), u(0.03), leather);
+      boot.position.set(ankle.x, 0.004, ankle.z + u(0.028));
+      boot.rotation.y = j(0.13);
+      g.add(boot);
+      const cuff = new THREE.Mesh(new THREE.TorusGeometry(uw(0.059), u(0.016), 5, 9), leather);
+      cuff.position.set(ankle.x, yAnkle + u(0.03), ankle.z);
+      cuff.rotation.x = Math.PI / 2;
+      g.add(cuff);
+    });
+
+    /* torso, jerkin, belt */
+    g.add(bone(V3(0, yHip - u(0.025), 0), V3(0, yWaist, 0), uw(0.118), uw(0.102), under, 8));
+    g.add(bone(V3(0, yWaist, 0), V3(0, yChest, -u(0.014)), uw(0.102), uw(0.128), cloth, 8));
+    const jerkin = slab(uw(0.23), uw(0.135), u(0.165), u(0.042), cloth);
+    jerkin.position.set(0, yWaist + u(0.015), -u(0.004));
+    g.add(jerkin);
+    const belt = new THREE.Mesh(new THREE.TorusGeometry(uw(0.112), u(0.018), 5, 12), leather);
+    belt.position.y = yWaist; belt.rotation.x = Math.PI / 2; belt.scale.z = 0.78;
+    g.add(belt);
+
+    /* apron, satchel, and the tesserae showing in it */
+    const apron = slab(uw(0.205), u(0.022), u(0.3), u(0.03), leather);
+    apron.position.set(0, yWaist - u(0.3), uw(0.085));
+    g.add(apron);
+    const satchel = slab(uw(0.135), u(0.088), u(0.125), u(0.025), leather);
+    satchel.position.set(-uw(0.145), yWaist - u(0.135), u(0.035));
+    satchel.rotation.y = 0.22;
+    g.add(satchel);
+    for (let i = 0; i < 3; i++) {
+      const t = new THREE.Mesh(
+        tesseraGeometry(u(0.055), u(0.022)),
+        new THREE.MeshStandardMaterial({ color: warm.clone().offsetHSL(0, 0, prng.range(-0.07, 0.07)), roughness: 0.6 })
+      );
+      t.position.set(-uw(0.145) + j(u(0.028)), yWaist - u(0.016), u(0.035) + j(u(0.028)));
+      t.rotation.y = prng.range(0, 3.1);
+      t.castShadow = true;
+      g.add(t);
+    }
+    /* a small lamp at the belt — the figure carries its own light */
+    g.add(ball(V3(uw(0.125), yWaist - u(0.055), u(0.05)), u(0.022), glow, 0));
+
+    /* shoulders and arms: the right reaches down to the work */
+    const shL = V3(-uw(0.15), yShldr, 0), shR = V3(uw(0.15), yShldr, 0);
+    g.add(ball(shL, uw(0.057), cloth, 0));
+    g.add(ball(shR, uw(0.057), cloth, 0));
+    const elR = V3(uw(0.195), yShldr - u(0.175), u(0.105) + j(u(0.02)));
+    const haR = V3(uw(0.17), yShldr - u(0.315), u(0.215));
+    g.add(bone(shR, elR, uw(0.051), uw(0.043), cloth));
+    g.add(bone(elR, haR, uw(0.041), uw(0.033), under));
+    g.add(ball(elR, uw(0.041), leather, 0));
+    g.add(ball(haR, uw(0.040), leather, 0));
+
+    const carrying = spec.tool === "hod" || spec.tool === "rule";
+    const elL = V3(-uw(0.197), yShldr - u(0.175), carrying ? u(0.06) : -u(0.03));
+    const haL = V3(-uw(0.168), yShldr - (carrying ? u(0.26) : u(0.335)), carrying ? u(0.185) : u(0.04));
+    g.add(bone(shL, elL, uw(0.051), uw(0.043), cloth));
+    g.add(bone(elL, haL, uw(0.041), uw(0.033), under));
+    g.add(ball(elL, uw(0.041), leather, 0));
+    g.add(ball(haL, uw(0.040), leather, 0));
+
+    /* neck and head */
+    g.add(bone(V3(0, yChest, -u(0.014)), V3(0, yNeck, -u(0.004)), uw(0.046), uw(0.039), under, 6));
+    const head = ball(V3(0, yHead, u(0.004)), u(0.072), under, 1);
+    head.scale.set(0.93, 1.09, 0.98);
+    g.add(head);
+
+    if (spec.head === "hood") {
+      const cowl = new THREE.Mesh(
+        new THREE.ConeGeometry(u(0.118), u(0.132), 10, 1, true),
+        new THREE.MeshStandardMaterial({ color: accent.clone().multiplyScalar(0.3), roughness: 0.92, flatShading: true, side: THREE.DoubleSide })
+      );
+      cowl.position.set(0, yHead + u(0.008), -u(0.012));
+      cowl.rotation.x = -0.12;
+      cowl.castShadow = true;
+      g.add(cowl);
+      const drape = slab(uw(0.19), u(0.1), u(0.1), u(0.035), cloth);
+      drape.position.set(0, yNeck - u(0.02), -u(0.045));
+      g.add(drape);
+    } else if (spec.head === "cap") {
+      const cap = slab(u(0.155), u(0.16), u(0.05), u(0.05), leather);
+      cap.position.set(0, yHead + u(0.035), 0);
+      g.add(cap);
+      const brim = slab(u(0.15), u(0.075), u(0.016), u(0.03), leather);
+      brim.position.set(0, yHead + u(0.032), u(0.09));
+      g.add(brim);
+    } else {
+      const band = new THREE.Mesh(new THREE.TorusGeometry(u(0.069), u(0.013), 4, 10), leather);
+      band.position.set(0, yHead + u(0.028), 0);
+      band.rotation.x = Math.PI / 2;
+      g.add(band);
+    }
+
+    /* the tool each build is named for */
+    if (spec.tool === "mallet") {
+      const butt = V3(haR.x + uw(0.03), haR.y + u(0.085), haR.z - u(0.02));
+      const headP = V3(haR.x - uw(0.02), haR.y - u(0.12), haR.z + u(0.04));
+      g.add(bone(butt, headP, u(0.014), u(0.016), leather, 6));
+      const hd = new THREE.Mesh(new THREE.CylinderGeometry(u(0.042), u(0.042), u(0.1), 8), leather);
+      hd.position.copy(headP);
+      hd.rotation.set(Math.PI / 2, 0, 0.35);
+      hd.castShadow = true;
+      g.add(hd);
+      [-1, 1].forEach(function (sgn) {
+        const r = new THREE.Mesh(new THREE.TorusGeometry(u(0.043), u(0.007), 4, 9), metal);
+        r.position.set(headP.x, headP.y, headP.z + sgn * u(0.04));
+        r.castShadow = true;
+        g.add(r);
+      });
+    } else if (spec.tool === "plumb") {
+      const top = V3(haR.x, haR.y - u(0.015), haR.z);
+      const bob = V3(haR.x + j(u(0.01)), u(0.1), haR.z + j(u(0.01)));
+      g.add(bone(top, bob, u(0.004), u(0.004), metal, 4));
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(u(0.028), u(0.075), 8), metal);
+      cone.position.set(bob.x, bob.y - u(0.02), bob.z);
+      cone.rotation.x = Math.PI;
+      cone.castShadow = true;
+      g.add(cone);
+    } else if (spec.tool === "rule") {
+      const rule = slab(u(0.03), u(0.62), u(0.016), u(0.006), metal);
+      rule.position.set(uw(0.02), haL.y + u(0.03), u(0.13));
+      rule.rotation.set(0, 0.22, -0.1);
+      g.add(rule);
+    } else if (spec.tool === "hod") {
+      const bowlPts = [];
+      for (let i = 0; i <= 7; i++) {
+        const t = i / 7;
+        bowlPts.push(new THREE.Vector2(u(0.02 + 0.105 * Math.pow(t, 0.65)), u(0.14 * t)));
+      }
+      const hod = new THREE.Mesh(new THREE.LatheGeometry(bowlPts, 12), leather);
+      hod.position.set(haL.x - uw(0.03), haL.y, haL.z + u(0.03));
+      hod.castShadow = true;
+      g.add(hod);
+      for (let i = 0; i < 5; i++) {
+        const t = new THREE.Mesh(
+          tesseraGeometry(u(0.055), u(0.022)),
+          new THREE.MeshStandardMaterial({ color: warm.clone().offsetHSL(0, 0, prng.range(-0.08, 0.08)), roughness: 0.58 })
+        );
+        t.position.set(haL.x - uw(0.03) + j(u(0.055)), haL.y + u(0.13), haL.z + u(0.03) + j(u(0.055)));
+        t.rotation.set(j(0.3), prng.range(0, 3.1), j(0.3));
+        t.castShadow = true;
+        g.add(t);
+      }
+    }
+
+    g.rotation.y = -0.42 + j(0.1);
+    return g;
+  }
+
+  /**
+   * A scavenger: a plated body carried on jointed legs.
+   *
+   * Anatomy rather than a debris cloud — a carapace with overlapping plates,
+   * legs that lift out of the body and plant on the ground, a head with
+   * mandibles. Nothing on the body is lit; the only saturated thing it
+   * carries is what it has taken.
+   */
+  function buildScavenger(spec, mood, prng) {
+    const g = new THREE.Group();
+    const warm = new THREE.Color(mood.warm[1]);
+    const shell = new THREE.MeshStandardMaterial({ color: 0x13161c, roughness: 0.64, metalness: 0.3, flatShading: true });
+    const chitin = new THREE.MeshStandardMaterial({ color: 0x232935, roughness: 0.52, metalness: 0.46, flatShading: true });
+    const eye = new THREE.MeshStandardMaterial({ color: 0x0a0c10, roughness: 0.14, metalness: 0.5 });
+
+    const R = spec.bodyR, Y = spec.bodyY;
+    const j = function (a) { return prng.range(-a, a); };
+
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(R, 1), shell);
+    core.position.y = Y;
+    core.scale.set(1.3, 0.7, 1.62);
+    core.castShadow = true;
+    g.add(core);
+
+    /* overlapping back plates */
+    for (let i = 0; i < 4; i++) {
+      const t = i / 3;
+      const pl = slab(R * (1.62 - t * 0.62), R * 0.62, R * 0.15, R * 0.16, chitin);
+      pl.position.set(0, Y + R * (0.42 - t * 0.05), R * (0.95 - t * 0.66));
+      pl.rotation.x = -0.26 + t * 0.12;
+      g.add(pl);
+    }
+
+    /* head and mandibles */
+    const hp = V3(0, Y - R * 0.12, R * 1.5);
+    const headM = ball(hp, R * 0.44, shell, 0);
+    headM.scale.set(1, 0.82, 1.1);
+    g.add(headM);
+    [-1, 1].forEach(function (sd) {
+      g.add(bone(
+        V3(sd * R * 0.3, hp.y - R * 0.05, hp.z + R * 0.22),
+        V3(sd * R * 0.46, hp.y - R * 0.4, hp.z + R * 1.0),
+        R * 0.13, R * 0.028, chitin, 5
+      ));
+      const e = ball(V3(sd * R * 0.26, hp.y + R * 0.2, hp.z + R * 0.3), R * 0.085, eye, 0);
+      g.add(e);
+    });
+
+    /* legs: out and up from the body, then down to plant on the floor */
+    const rows = Math.max(1, Math.ceil(spec.legs / 2));
+    for (let i = 0; i < spec.legs; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const k = Math.floor(i / 2);
+      const along = rows === 1 ? 0 : (k / (rows - 1) - 0.5);
+      const hip = V3(side * R * 0.92, Y - R * 0.05, along * R * 1.8);
+      const reach = spec.legLen * prng.range(0.9, 1.12);
+      const foot = V3(side * (R * 0.85 + reach), 0.012, along * R * 2.3 + j(0.07));
+      const knee = V3(
+        side * (R * 0.85 + reach * 0.42),
+        Y + spec.legLen * prng.range(0.6, 0.85),
+        (hip.z + foot.z) * 0.5
+      );
+      g.add(bone(hip, knee, R * 0.14, R * 0.085, chitin, 5));
+      g.add(bone(knee, foot, R * 0.085, R * 0.03, chitin, 5));
+      g.add(ball(knee, R * 0.1, shell, 0));
+    }
+
+    /* a grasping arm on the builds that reach */
+    if (spec.arm) {
+      const sh = V3(R * 0.5, Y + R * 0.25, R * 0.9);
+      const el = V3(R * 1.25, Y + R * 0.55, R * 1.35);
+      const cl = V3(R * 1.5, Y - R * 0.2, R * 2.0);
+      g.add(bone(sh, el, R * 0.12, R * 0.085, chitin, 5));
+      g.add(bone(el, cl, R * 0.085, R * 0.05, chitin, 5));
+      g.add(ball(el, R * 0.1, shell, 0));
+      [-1, 1].forEach(function (sd) {
+        g.add(bone(cl, V3(cl.x + sd * R * 0.2, cl.y - R * 0.22, cl.z + R * 0.3), R * 0.045, R * 0.015, chitin, 4));
+      });
+      const held = new THREE.Mesh(
+        tesseraGeometry(R * 0.5, R * 0.18),
+        new THREE.MeshStandardMaterial({ color: warm, roughness: 0.55 })
+      );
+      held.position.set(cl.x + R * 0.05, cl.y - R * 0.22, cl.z + R * 0.28);
+      held.rotation.set(j(0.5), prng.range(0, 3.1), j(0.5));
+      held.castShadow = true;
+      g.add(held);
+    }
+
+    /* what it has already taken, strapped across the back */
+    for (let i = 0; i < spec.loot; i++) {
+      const t = new THREE.Mesh(
+        tesseraGeometry(R * 0.52, R * 0.2),
+        new THREE.MeshStandardMaterial({ color: warm.clone().offsetHSL(0, 0, prng.range(-0.08, 0.08)), roughness: 0.55 })
+      );
+      t.position.set(j(R * 0.8), Y + R * (0.4 + i * 0.07), j(R * 1.0) - R * 0.1);
+      t.rotation.set(j(0.45), prng.range(0, 3.1), j(0.45));
+      t.castShadow = true;
+      g.add(t);
+    }
+
+    g.rotation.y = 0.5 + j(0.25);
+    return g;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Scene assembly
+   * ------------------------------------------------------------------ */
+  /**
+   * `camDistance` matters: fog is measured from the camera, and an
+   * orthographic camera for an isometric view sits far outside the scene.
+   * Each mood states its fog as depth BEYOND the focal plane, so the same
+   * treatment reads the same whether a tile is framed wide or close.
+   */
+  function baseScene(mood, groundSize, shadowExtent, camDistance) {
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(mood.bg);
+    scene.fog = new THREE.Fog(mood.bg, camDistance + mood.fog[0], camDistance + mood.fog[1]);
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(groundSize, groundSize),
+      new THREE.MeshStandardMaterial({ color: mood.ground, roughness: 0.96, metalness: 0 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.012;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    scene.add(new THREE.HemisphereLight(mood.hemi.sky, mood.hemi.ground, mood.hemi.intensity));
+
+    const key = new THREE.DirectionalLight(mood.key.color, mood.key.intensity);
+    key.position.set(mood.key.pos[0], mood.key.pos[1], mood.key.pos[2]);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.normalBias = 0.022;
+    key.shadow.camera.left = -shadowExtent;
+    key.shadow.camera.right = shadowExtent;
+    key.shadow.camera.top = shadowExtent;
+    key.shadow.camera.bottom = -shadowExtent;
+    key.shadow.camera.near = 1;
+    key.shadow.camera.far = 140;
+    scene.add(key);
+    scene.add(key.target);
+
+    return scene;
+  }
+
+  function isoCamera(viewHeight, aspect, focus, distance) {
+    const cam = new THREE.OrthographicCamera(
+      (-viewHeight * aspect) / 2, (viewHeight * aspect) / 2,
+      viewHeight / 2, -viewHeight / 2, 0.1, 400
+    );
+    cam.position.copy(ISO_DIR).multiplyScalar(distance || 70).add(focus);
+    cam.lookAt(focus);
+    return cam;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Renderer — one WebGL context, blitted into each tile's 2D canvas.
+   * Eighteen live contexts would exceed what a browser will give a page;
+   * these are stills, and a still is what a board is.
+   * ------------------------------------------------------------------ */
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  renderer.setPixelRatio(DPR);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  function disposeScene(scene) {
+    scene.traverse(function (obj) {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        (Array.isArray(obj.material) ? obj.material : [obj.material]).forEach(function (m) { m.dispose(); });
+      }
+      if (obj.dispose && obj.isInstancedMesh) obj.dispose();
+    });
+  }
+
+  function paint(canvas, scene, camera) {
+    const w = canvas.clientWidth || 300;
+    const h = Math.round(w / canvas.dataset.ratio);
+    canvas.width = Math.round(w * DPR);
+    canvas.height = Math.round(h * DPR);
+    canvas.style.height = h + "px";
+
+    renderer.setSize(w, h, false);
+    camera.left = (-camera.userData.viewHeight * (w / h)) / 2;
+    camera.right = (camera.userData.viewHeight * (w / h)) / 2;
+    camera.updateProjectionMatrix();
+    renderer.render(scene, camera);
+
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(renderer.domElement, 0, 0, canvas.width, canvas.height);
+  }
+
+  function makeCamera(viewHeight, focus, distance) {
+    const cam = isoCamera(viewHeight, 1, focus, distance);
+    cam.userData.viewHeight = viewHeight;
+    return cam;
+  }
+
+  /* ------------------------------------------------------------------ *
+   * State
+   * ------------------------------------------------------------------ */
+  const state = {
+    seed: 20261110,
+    mood: "ash-dawn",
+    laying: "tessellatum",
+    restorer: "plumb",
+    scavenger: "hauler"
+  };
+
+  const moodById = function (id) { return MOODS.filter(function (m) { return m.id === id; })[0] || MOODS[0]; };
+
+  /* ------------------------------------------------------------------ *
+   * Tile construction
+   * ------------------------------------------------------------------ */
+  function hex(n) { return "#" + n.toString(16).padStart(6, "0"); }
+
+  function makeTile(opts) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "tile";
+    btn.setAttribute("aria-pressed", "false");
+    btn.dataset.id = opts.id;
+
+    const canvas = document.createElement("canvas");
+    canvas.dataset.ratio = opts.ratio;
+    canvas.setAttribute("role", "img");
+    canvas.setAttribute("aria-label", opts.name + " — generated preview");
+    btn.appendChild(canvas);
+
+    const body = document.createElement("div");
+    body.className = "tile-body";
+
+    const title = document.createElement("div");
+    title.className = "tile-title";
+    const name = document.createElement("span");
+    name.className = "tile-name";
+    name.textContent = opts.name;
+    const mark = document.createElement("span");
+    mark.className = "tile-mark";
+    mark.textContent = "select";
+    title.appendChild(name);
+    title.appendChild(mark);
+    body.appendChild(title);
+
+    if (opts.latin) {
+      const latin = document.createElement("div");
+      latin.className = "tile-latin";
+      latin.textContent = opts.latin;
+      body.appendChild(latin);
+    }
+
+    const note = document.createElement("p");
+    note.className = "tile-note";
+    note.textContent = opts.note;
+    body.appendChild(note);
+
+    if (opts.swatches) {
+      const sw = document.createElement("div");
+      sw.className = "swatches";
+      opts.swatches.forEach(function (c) {
+        const i = document.createElement("i");
+        i.style.background = hex(c);
+        sw.appendChild(i);
+      });
+      body.appendChild(sw);
+
+      const hr = document.createElement("div");
+      hr.className = "hexrow";
+      [opts.swatches[0], opts.swatches[2], opts.swatches[4]].forEach(function (c) {
+        const s = document.createElement("span");
+        s.textContent = hex(c);
+        hr.appendChild(s);
+      });
+      body.appendChild(hr);
+    }
+
+    btn.appendChild(body);
+    btn.addEventListener("click", function () { opts.onSelect(opts.id); });
+    return { el: btn, canvas: canvas };
+  }
+
+  const tiles = { mood: [], laying: [], restorer: [], scavenger: [] };
+
+  function buildTiles() {
+    const gm = document.getElementById("grid-mood");
+    MOODS.forEach(function (m) {
+      const t = makeTile({
+        id: m.id, name: m.name, note: m.note, ratio: 1.5,
+        swatches: [m.bg, m.ground, m.cold[1], m.warm[0], m.warm[1]],
+        onSelect: function (id) { state.mood = id; onMoodChange(); }
+      });
+      gm.appendChild(t.el);
+      tiles.mood.push(t);
+    });
+
+    const gl = document.getElementById("grid-laying");
+    LAYINGS.forEach(function (l) {
+      const t = makeTile({
+        id: l.id, name: l.name, latin: l.latin, note: l.note, ratio: 1.1,
+        onSelect: function (id) { state.laying = id; renderLaying(); renderMoods(); syncPressed(); saveChoice(); }
+      });
+      gl.appendChild(t.el);
+      tiles.laying.push(t);
+    });
+
+    const gr = document.getElementById("grid-restorer");
+    RESTORERS.forEach(function (r) {
+      const t = makeTile({
+        id: r.id, name: r.name, note: r.note, ratio: 0.92,
+        onSelect: function (id) { state.restorer = id; syncPressed(); saveChoice(); }
+      });
+      gr.appendChild(t.el);
+      tiles.restorer.push(t);
+    });
+
+    const gs = document.getElementById("grid-scavenger");
+    SCAVENGERS.forEach(function (s) {
+      const t = makeTile({
+        id: s.id, name: s.name, note: s.note, ratio: 1.05,
+        onSelect: function (id) { state.scavenger = id; syncPressed(); saveChoice(); }
+      });
+      gs.appendChild(t.el);
+      tiles.scavenger.push(t);
+    });
+  }
+
+  function syncPressed() {
+    [["mood", state.mood], ["laying", state.laying], ["restorer", state.restorer], ["scavenger", state.scavenger]]
+      .forEach(function (pair) {
+        tiles[pair[0]].forEach(function (t) {
+          const on = t.el.dataset.id === pair[1];
+          t.el.setAttribute("aria-pressed", on ? "true" : "false");
+          t.el.querySelector(".tile-mark").textContent = on ? "chosen" : "select";
+        });
+      });
+    renderDecision();
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Render passes
+   * ------------------------------------------------------------------ */
+  function renderMoods() {
+    MOODS.forEach(function (mood, i) {
+      const prng = createPrng(state.seed + i * 7919);
+      const scene = baseScene(mood, 120, 20, 70);
+      const panel = layPanel(mood, state.laying, prng, { extent: 13, pitch: 0.62, front: 1.0 });
+      scene.add(panel);
+
+      const r = RESTORERS.filter(function (x) { return x.id === state.restorer; })[0];
+      const a = buildRestorer(r, mood, prng);
+      a.position.set(3.2, 0, -1.0);
+      a.scale.setScalar(1.3);
+      scene.add(a);
+      const b = buildRestorer(RESTORERS[(RESTORERS.indexOf(r) + 1) % RESTORERS.length], mood, prng);
+      b.position.set(5.0, 0, 1.6);
+      b.scale.setScalar(1.24);
+      scene.add(b);
+
+      const s = SCAVENGERS.filter(function (x) { return x.id === state.scavenger; })[0];
+      const sc = buildScavenger(s, mood, prng);
+      sc.position.set(-4.2, 0, 2.0);
+      sc.scale.setScalar(1.3);
+      scene.add(sc);
+      const sc2 = buildScavenger(s, mood, prng);
+      sc2.position.set(-6.4, 0, -1.4);
+      sc2.scale.setScalar(1.12);
+      scene.add(sc2);
+
+      const cam = makeCamera(13, new THREE.Vector3(0, 0.4, 0), 70);
+      paint(tiles.mood[i].canvas, scene, cam);
+      disposeScene(scene);
+    });
+  }
+
+  function renderLaying() {
+    const mood = moodById(state.mood);
+    LAYINGS.forEach(function (l, i) {
+      const prng = createPrng(state.seed + i * 104729);
+      const scene = baseScene(mood, 80, 9, 60);
+      const panel = layPanel(mood, l.id, prng, { extent: 6.0, pitch: 0.42, front: 0.2 });
+      scene.add(panel);
+      const cam = makeCamera(7.4, new THREE.Vector3(0, 0.1, 0), 60);
+      paint(tiles.laying[i].canvas, scene, cam);
+      disposeScene(scene);
+    });
+  }
+
+  function renderRestorers() {
+    const mood = moodById(state.mood);
+    RESTORERS.forEach(function (r, i) {
+      const prng = createPrng(state.seed + i * 15485863);
+      const scene = baseScene(mood, 40, 4, 40);
+      const panel = layPanel(mood, state.laying, prng, { extent: 2.6, pitch: 0.34, front: -0.3 });
+      scene.add(panel);
+      const form = buildRestorer(r, mood, prng);
+      scene.add(form);
+      const cam = makeCamera(2.15, new THREE.Vector3(0, 0.70, 0), 40);
+      paint(tiles.restorer[i].canvas, scene, cam);
+      disposeScene(scene);
+    });
+  }
+
+  function renderScavengers() {
+    const mood = moodById(state.mood);
+    SCAVENGERS.forEach(function (s, i) {
+      const prng = createPrng(state.seed + i * 32452843);
+      const scene = baseScene(mood, 40, 4, 40);
+      const panel = layPanel(mood, state.laying, prng, { extent: 2.6, pitch: 0.34, front: -3.0 });
+      scene.add(panel);
+      const form = buildScavenger(s, mood, prng);
+      scene.add(form);
+      const cam = makeCamera(1.95, new THREE.Vector3(0, 0.40, 0), 40);
+      paint(tiles.scavenger[i].canvas, scene, cam);
+      disposeScene(scene);
+    });
+  }
+
+  function renderDecision() {
+    const mood = moodById(state.mood);
+    const laying = LAYINGS.filter(function (l) { return l.id === state.laying; })[0];
+    const restorer = RESTORERS.filter(function (r) { return r.id === state.restorer; })[0];
+    const scavenger = SCAVENGERS.filter(function (s) { return s.id === state.scavenger; })[0];
+
+    const rows = [
+      { k: "Mood", v: mood.name, sub: hex(mood.bg) + " · " + hex(mood.warm[0]) },
+      { k: "Laying", v: laying.name, sub: laying.latin },
+      { k: "Restorer", v: restorer.name, sub: restorer.tool + " · " + restorer.head },
+      { k: "Scavenger", v: scavenger.name, sub: scavenger.legs + " legs · " + scavenger.loot + " taken" },
+      { k: "Seed", v: String(state.seed), sub: "deterministic" }
+    ];
+
+    const el = document.getElementById("decision");
+    el.textContent = "";
+    rows.forEach(function (r) {
+      const cell = document.createElement("div");
+      cell.className = "dcell";
+      const k = document.createElement("span"); k.className = "k"; k.textContent = r.k;
+      const v = document.createElement("span"); v.className = "v"; v.textContent = r.v;
+      const s = document.createElement("span"); s.className = "sub"; s.textContent = r.sub;
+      cell.appendChild(k); cell.appendChild(v); cell.appendChild(s);
+      el.appendChild(cell);
+    });
+  }
+
+  function onMoodChange() {
+    renderMoods();
+    renderLaying();
+    renderRestorers();
+    renderScavengers();
+    syncPressed();
+    saveChoice();
+  }
+
+  function renderAll() {
+    renderMoods();
+    renderLaying();
+    renderRestorers();
+    renderScavengers();
+    syncPressed();
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Persistence — so the choice is readable afterwards rather than
+   * living only in whoever was looking at the screen.
+   * ------------------------------------------------------------------ */
+  let db = null;
+  let writing = false;
+  let pending = false;
+  const statusEl = document.getElementById("status");
+
+  function setStatus(text, tone) {
+    statusEl.textContent = text;
+    if (tone) statusEl.dataset.tone = tone; else statusEl.removeAttribute("data-tone");
+  }
+
+  function saveChoice() {
+    if (!db) return;
+    if (writing) { pending = true; return; }
+    writing = true;
+    const mood = moodById(state.mood);
+    db.doc("choices/current").set({
+      mood: state.mood,
+      moodName: mood.name,
+      palette: { bg: hex(mood.bg), ground: hex(mood.ground), coldHigh: hex(mood.cold[1]), warmLow: hex(mood.warm[0]), warmHigh: hex(mood.warm[1]), accent: hex(mood.accent) },
+      laying: state.laying,
+      restorer: state.restorer,
+      scavenger: state.scavenger,
+      seed: state.seed,
+      decidedAt: new Date().toISOString()
+    }).then(function () {
+      setStatus("Choice saved — Claude can read it back from this board.", "ok");
+    }).catch(function (e) {
+      setStatus("Not saved (" + (e && e.code ? e.code : "unavailable") + "). The board still works; tell Claude your pick.", null);
+    }).then(function () {
+      writing = false;
+      if (pending) { pending = false; saveChoice(); }
+    });
+  }
+
+  function applyStored(data) {
+    if (!data) return;
+    if (data.mood && MOODS.some(function (m) { return m.id === data.mood; })) state.mood = data.mood;
+    if (data.laying && LAYINGS.some(function (l) { return l.id === data.laying; })) state.laying = data.laying;
+    if (data.restorer && RESTORERS.some(function (r) { return r.id === data.restorer; })) state.restorer = data.restorer;
+    if (data.scavenger && SCAVENGERS.some(function (s) { return s.id === data.scavenger; })) state.scavenger = data.scavenger;
+    if (typeof data.seed === "number" && isFinite(data.seed)) {
+      state.seed = data.seed;
+      document.getElementById("seed").value = String(data.seed);
+    }
+  }
+
+  /* ------------------------------------------------------------------ *
+   * Wiring
+   * ------------------------------------------------------------------ */
+  function boot() {
+    buildTiles();
+    renderAll();
+    document.getElementById("loading").hidden = true;
+    setStatus("Pick a mood. Nothing is committed to the wall yet.");
+
+    const seedInput = document.getElementById("seed");
+    seedInput.addEventListener("change", function () {
+      const v = parseInt(seedInput.value, 10);
+      if (!isFinite(v)) return;
+      state.seed = v;
+      renderAll();
+      saveChoice();
+    });
+
+    document.getElementById("reroll").addEventListener("click", function () {
+      state.seed = Math.floor(Math.random() * 90000000) + 1000000;
+      seedInput.value = String(state.seed);
+      renderAll();
+      saveChoice();
+    });
+
+    document.getElementById("rerender").addEventListener("click", renderAll);
+
+    let resizeTimer = null;
+    window.addEventListener("resize", function () {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(renderAll, 220);
+    });
+
+    // The board was published as an artifact to make the original choice, where
+    // it saved to that artifact's store. Opened from the repo there is no host,
+    // so this is skipped and the board is read-only — which is what you want
+    // when re-running it to check a generator, rather than to decide again.
+    if (window.claude && typeof window.claude.use === "function") {
+      window.claude.use("db").then(function (d) {
+        if (!d) return;
+        db = d;
+        return db.doc("choices/current").get().then(function (snap) {
+          if (snap && snap.exists) {
+            applyStored(snap.data());
+            renderAll();
+            setStatus("Restored the choice last saved on this board.", "ok");
+          }
+        });
+      }).catch(function () { /* the board does not depend on it */ });
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
