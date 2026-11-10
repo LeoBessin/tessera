@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tessera</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { height: 100%; overflow: hidden; background: #11131a; }
+      #stage { display: block; width: 100vw; height: 100vh; }
+      #status {
+        position: fixed; left: 16px; bottom: 14px;
+        font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        letter-spacing: 0.04em; color: #6fd3c7; opacity: 0.72;
+        pointer-events: none; user-select: none;
+      }
+      #hint {
+        position: fixed; right: 16px; bottom: 14px;
+        font: 500 12px/1 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        letter-spacing: 0.04em; color: #5a6076;
+        pointer-events: none; user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+    <div id="status">starting…</div>
+    <div id="hint">WASD / arrows to move</div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "@tessera/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/main.ts",
+    "start": "node dist/main.mjs",
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@colyseus/core": "0.18.27",
+    "@colyseus/ws-transport": "0.18.4",
+    "@tessera/protocol": "workspace:*",
+    "@tessera/sim": "workspace:*"
+  },
+  "devDependencies": {
+    "tsdown": "0.23.7"
+  }
+}

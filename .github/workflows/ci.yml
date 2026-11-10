@@ -1,0 +1,95 @@
+# The gate that makes autonomous iteration safe.
+#
+# Every job here answers a question a reviewer would otherwise have to ask by
+# hand. Nothing merges that cannot answer all of them.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+
+jobs:
+  verify:
+    name: typecheck · architecture · tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Guards the dependency direction that the whole design rests on. It also
+      # fails on unresolvable imports, because a rule cannot police a module it
+      # could not resolve.
+      - name: Architecture boundaries
+        run: pnpm arch
+
+      # Unit and property tests, plus the committed replay digests. A digest
+      # that moves means the feel of the game changed; if that was intended,
+      # `pnpm replay:bless` belongs in the same commit.
+      - name: Tests
+        run: pnpm test:cov
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  build:
+    name: build both applications
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+  images:
+    name: container images
+    runs-on: ubuntu-latest
+    # Proves the deployment path still works before Coolify finds out in
+    # production. Images are built, not pushed: Coolify builds its own.
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: Server image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Client image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/client/Dockerfile
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

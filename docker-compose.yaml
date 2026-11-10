@@ -1,0 +1,49 @@
+# Deployment descriptor for Coolify.
+#
+# Point a Coolify resource at this repository with this file as the compose
+# source. Coolify's proxy terminates TLS and routes both services by domain;
+# WebSocket upgrades pass through without extra configuration.
+#
+# Set these in Coolify's environment panel:
+#   SERVER_DOMAIN   api.example.com        (the game server)
+#   CLIENT_DOMAIN   play.example.com       (the static client)
+#   PUBLIC_WS_URL   wss://api.example.com  (baked into the client bundle)
+#
+# PUBLIC_WS_URL must be `wss://` in production. A page served over HTTPS is not
+# permitted to open a plaintext `ws://` socket, and the failure appears as a
+# silent connection error rather than anything that names the cause.
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    environment:
+      - NODE_ENV=production
+      - PORT=2567
+      - SERVICE_FQDN_SERVER_2567=/
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:2567/matchmake/campaign').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+      args:
+        # Build-time, not runtime: Vite inlines this into the bundle. Changing
+        # it requires a rebuild, not a restart.
+        VITE_SERVER_URL: ${PUBLIC_WS_URL:-ws://localhost:2567}
+    environment:
+      - SERVICE_FQDN_CLIENT_80=/
+    depends_on:
+      - server
+    restart: unless-stopped

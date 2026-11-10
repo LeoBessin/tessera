@@ -1,0 +1,19 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+allowBuilds:
+  '@swc/core': set this to true or false
+  msgpackr-extract: set this to true or false
+
+# Optional native accelerator for msgpackr (pulled in by Colyseus). The pure-JS
+# path is correct and fast enough at our message volume, and skipping the build
+# keeps the Docker image free of a C++ toolchain.
+ignoredBuiltDependencies:
+  - msgpackr-extract
+  # Ships prebuilt per-platform binaries; the postinstall build is not needed.
+  - '@swc/core'
+
+# Ignoring that build is a deliberate decision, not a pending one, so it should
+# not fail the install.
+strictDepBuilds: false

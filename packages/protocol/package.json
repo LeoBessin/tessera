@@ -1,0 +1,13 @@
+{
+  "name": "@tessera/protocol",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Wire format shared by the server and the client.",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p tsconfig.json" },
+  "dependencies": {
+    "@colyseus/schema": "5.0.45",
+    "@tessera/sim": "workspace:*"
+  }
+}
