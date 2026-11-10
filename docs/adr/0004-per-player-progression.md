@@ -1,6 +1,6 @@
 # 4. Progression belongs to the player, not the party
 
-- Status: accepted
+- Status: accepted, amended by [ADR 7](0007-three-trades-and-per-role-unlocks.md)
 - Date: 2026-11-10
 
 ## Context
@@ -26,6 +26,11 @@ with a single governing invariant: **progress never decreases**.
   to come back to life where they actually are
 - `grantUnlock` only ever adds
 - `mergeProgression` resolves two views by taking the best of both
+
+ADR 7 later split unlocks by trade. Every invariant below still holds — the
+monotonicity guarantee simply applies once per role now rather than once
+overall, and the `Math.max` on the chapter, which is the part this ADR argues
+hardest for, is untouched.
 
 ## Consequences
 

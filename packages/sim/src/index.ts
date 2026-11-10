@@ -31,8 +31,10 @@ export {
   mergeProgression,
   reachCheckpoint,
   recordDeath,
+  ROLES,
+  unlocksFor,
 } from './progression/progression.ts';
-export type { Progression } from './progression/progression.ts';
+export type { Progression, Role } from './progression/progression.ts';
 
 export {
   createWorld,
