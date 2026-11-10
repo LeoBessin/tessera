@@ -64,18 +64,34 @@ This phase comes first because progression is currently keyed on
 campaign built before identity is real is an hour of progress that cannot be
 saved to anybody.
 
+### Done already
+
+The rules are written and tested; only the provider and the wiring are left.
+
+- `IdentityVerifier` port and `PlayerIdentity` — the Google subject claim, a
+  display name and an avatar, and deliberately **no email**, so a campaign
+  cannot be keyed on one by accident
+- `authenticateJoin` and `identityOf` in `apps/server/src/auth/identity.ts`,
+  with the refusals the contract requires: no credential, a rejected
+  credential, a credential carrying no subject, and a session with no verified
+  account all fail rather than degrading
+- The forged-identity guard rail, enforced by `authenticateJoin`'s signature
+  rather than by a check — join options have no parameter to arrive through
+
 ### Work
 
 - Add `@colyseus/auth` and register Google as an OAuth provider:
   `auth.oauth.addProvider('google', { key, secret, scope: ['openid', 'email', 'profile'] })`
-- Add a `static async onAuth(token, options, context)` to `CampaignRoom` that
-  calls `JWT.verify(token)` and returns the payload. An unverified token must
-  throw, and the join must fail — not degrade to a guest.
-- Derive the player identity from the Google subject claim (`sub`), which is
-  stable, unique, and never reassigned. **Do not key on email**: people change
-  theirs, and that would silently orphan a campaign.
+- A `GoogleIdentityVerifier` adapter behind the existing port, calling
+  `JWT.verify(token)` and mapping `sub` to `playerId`
+- Wire it: `static identity` on `CampaignRoom` injected at the composition
+  root, and `static async onAuth(token)` returning
+  `authenticateJoin(CampaignRoom.identity, token)`
 - Replace the `?? client.sessionId` fallback in `CampaignRoom.#playerIdOf` with
-  the verified identity. The fallback must be *deleted*, not left unreachable.
+  `identityOf(client.auth).playerId`. The fallback must be *deleted*, not left
+  unreachable. The three steps above land together — `onAuth` makes a join fail
+  without a verified account, so landing it before the adapter exists makes the
+  game unplayable rather than merely unauthenticated.
 - Client: a sign-in screen owned by a new `apps/client/src/auth/` module. The
   canvas does not mount until a session exists.
 - Token lifecycle: storage, refresh before expiry, sign-out, and a clean

@@ -109,8 +109,27 @@ export class CampaignRoom extends Room<{
   }
 
   /**
-   * Identity for persistence. Anonymous sessions get their own throwaway
-   * progression; a real account replaces this once authentication lands.
+   * Identity for persistence — still the placeholder.
+   *
+   * The `?? client.sessionId` is the anonymous path the design contract
+   * forbids: a session id is thrown away when the socket closes, so progress
+   * saved against one belongs to nobody while looking like it worked.
+   *
+   * Its replacement is written and tested in `../auth/identity.ts`. Phase 1
+   * lands it in three steps, all of which must happen together:
+   *
+   *   1. `static identity: IdentityVerifier`, injected at the composition root
+   *      beside `repository`.
+   *   2. `static async onAuth(token, _options, _context)` returning
+   *      `authenticateJoin(CampaignRoom.identity, token)`. Colyseus puts what
+   *      it returns on `client.auth`, which is server-set and unreachable from
+   *      a join payload.
+   *   3. This method becomes `identityOf(client.auth).playerId` — and the
+   *      fallback below is *deleted*, not left unreachable.
+   *
+   * Step 2 is what makes a join fail without a verified account, so landing it
+   * before a Google adapter exists would make the game unplayable rather than
+   * merely unauthenticated. That is why this is still here.
    */
   #playerIdOf(client: Client): string {
     return (client.auth as { playerId?: string } | undefined)?.playerId ?? client.sessionId;
