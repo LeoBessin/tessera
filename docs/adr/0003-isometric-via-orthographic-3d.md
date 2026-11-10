@@ -1,6 +1,6 @@
 # 3. Isometric rendering via real 3D under an orthographic camera
 
-- Status: accepted
+- Status: accepted, amended by [ADR 8](0008-generated-art-must-be-detailed.md)
 - Date: 2026-11-10
 
 ## Context
@@ -33,6 +33,10 @@ soft shadows is a few lines here and is not available in 2D without faking it.
 **The art is already code.** `BoxGeometry`, `OctahedronGeometry` and
 `InstancedMesh` *are* procedural geometric art. There is no asset pipeline at
 all, and the entire visual direction is diffable text under version control.
+
+> ADR 8 narrows this paragraph: it is a claim about the *pipeline*, not a
+> standard for the finished look. Primitives are placeholders, and generated
+> forms are required to be detailed.
 
 **An orthographic camera at `(1, √2/2, 1)` is true isometric**, not an
 approximation of it.

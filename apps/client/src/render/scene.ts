@@ -12,6 +12,14 @@ import * as THREE from 'three';
  *
  * The simulation's ground plane is `(x, y)`; the scene's is `(x, z)`. That
  * mapping lives here and nowhere else.
+ *
+ * Everything built below is a **placeholder**. ADR 8 requires generated forms
+ * to be detailed, and boxes, a grid and an octahedron are not that — they are
+ * what a walking skeleton draws before anyone has decided anything. The
+ * pipeline is right and the forms are provisional; replacing them is phase 3
+ * work. The one rule to keep while doing it: the renderer draws from its own
+ * PRNG instance and never advances the simulation's, so generated detail can
+ * never move a replay digest.
  */
 
 /** Height of the visible area in world units. Sets the zoom. */
@@ -65,7 +73,8 @@ function buildGround(scene: THREE.Scene): void {
 }
 
 /**
- * Scatters geometric blocks around the arena.
+ * Scatters geometric blocks around the arena. **Placeholder** (ADR 8): real
+ * scenery is generated in detail, not scaled cubes.
  *
  * Drawn from the simulation's own seeded generator, so the same seed yields the
  * same landscape on every client — and so the content pipeline and the game
@@ -121,9 +130,10 @@ function buildLights(scene: THREE.Scene): void {
 }
 
 function buildPlayerMesh(isSelf: boolean): THREE.Mesh {
-  // An octahedron: unmistakably geometric, readable from the fixed camera
-  // angle, and it reads as "facing nowhere in particular", which is honest
-  // while the simulation has no facing yet.
+  // Placeholder (ADR 8). An octahedron is readable from the fixed camera angle
+  // and reads as "facing nowhere in particular", which is honest while the
+  // simulation has no facing — but a restorer is a craftsperson, and a
+  // primitive is not a character. Replaced once facing exists.
   const mesh = new THREE.Mesh(
     new THREE.OctahedronGeometry(0.6),
     new THREE.MeshStandardMaterial({
